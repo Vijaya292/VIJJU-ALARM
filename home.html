@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Alarm by vijju</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #0d1117;
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      text-align: center;
+      background: #161b22;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .subtitle {
+      font-size: 0.9em;
+      color: #8b949e;
+      margin-bottom: 20px;
+    }
+
+    #clock {
+      font-size: 2em;
+      margin: 10px 0 20px;
+    }
+
+    .alarm-box input {
+      margin: 10px;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      font-size: 1em;
+    }
+
+    .buttons button {
+      margin: 10px;
+      padding: 10px 15px;
+      font-size: 1em;
+      border: none;
+      border-radius: 6px;
+      background-color: #238636;
+      color: white;
+      cursor: pointer;
+    }
+
+    .buttons button:nth-child(2) {
+      background-color: #da3633;
+    }
+
+    .buttons button:nth-child(3) {
+      background-color: #3b82f6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Alarm by vijju</h1>
+    <p class="subtitle">The cleanest way to rise and shine 🌅</p>
+    <div id="clock">--:--:--</div>
+
+    <div class="alarm-box">
+      <input type="text" id="alarmTitle" placeholder="e.g. Wake Up Call" />
+      <input type="time" id="alarmTime" />
+      <input type="file" id="alarmSound" accept="audio/*" />
+      
+      <div class="buttons">
+        <button onclick="setAlarm()">Set Alarm</button>
+        <button onclick="stopAlarm()">Stop Alarm</button>
+        <button onclick="testSound()">🔊 Test Sound</button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="defaultAlarm">
+    <source src="default-alarm.mp3" type="audio/mp3">
+  </audio>
+
+  <script>
+    let alarmTime = null;
+    let alarmTimeout = null;
+    let alarmAudio = new Audio();
+
+    function updateClock() {
+      const now = new Date();
+      const timeString = now.toLocaleTimeString();
+      document.getElementById('clock').textContent = timeString;
+
+      // Check for alarm match
+      const currentTime = now.toTimeString().slice(0, 5);
+      if (alarmTime === currentTime) {
+        triggerAlarm();
+      }
+    }
+
+    setInterval(updateClock, 1000);
+
+    function setAlarm() {
+      const timeInput = document.getElementById('alarmTime').value;
+      const customSound = document.getElementById('alarmSound').files[0];
+
+      if (!timeInput) {
+        alert("Please select a time for the alarm.");
+        return;
+      }
+
+      alarmTime = timeInput;
+
+      if (customSound) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          alarmAudio.src = e.target.result;
+        };
+        reader.readAsDataURL(customSound);
+      } else {
+        alarmAudio = document.getElementById('defaultAlarm');
+      }
+
+      alert("Alarm set for " + alarmTime);
+    }
+
+    function stopAlarm() {
+      alarmTime = null;
+      alarmAudio.pause();
+      alarmAudio.currentTime = 0;
+    }
+
+    function triggerAlarm() {
+      if (alarmTime) {
+        alarmAudio.play();
+        alert("⏰ Alarm: " + document.getElementById('alarmTitle').value);
+        stopAlarm(); // Stops alarm after triggering once
+      }
+    }
+
+    function testSound() {
+      const customSound = document.getElementById('alarmSound').files[0];
+      if (customSound) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const testAudio = new Audio(e.target.result);
+          testAudio.play();
+        };
+        reader.readAsDataURL(customSound);
+      } else {
+        document.getElementById('defaultAlarm').play();
+      }
+    }
+  </script>
+</body>
+</html>
